@@ -2,10 +2,11 @@ import { useEffect, useState, type ChangeEvent } from "react";
 import Movie_card from "../components/Movie_card";
 import "../css/Home.css";
 import axios from "axios";
+let imgUrl: string[] = [];
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [movies, setMovies] = useState<any>({});
-
+  const [movies, setMovies] = useState<any>({}); // Initialize movies as an empty object
+  // const [imgUrl, setImgUrl] = useState([]); // Initialize imgUrl as an empty array
   const [error, setError] = useState();
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -13,11 +14,19 @@ const Home = () => {
       try {
         const getMovies = async () => {
           axios
-            .get(`http://www.omdbapi.com/?apikey=9ea626c0&s=spider&type=series`)
+            .get(`http://www.omdbapi.com/?apikey=9ea626c0&s=avengers`)
             .then((response) => {
               console.log(response.data, "GetM.tsx");
               // return response.data;
               setMovies(response.data);
+              response.data.Search.map((movie: any, index: number) => {
+                const url = String(movie.Poster) ;
+                const spiltImgUrl = url.split("-").slice(-1).toString();
+                const final = `https://www.${spiltImgUrl}`;
+                imgUrl[index] = final;
+                console.log( "GetM.tsx", final);
+                // console.log(imgUrl, "GetM.tsx")
+              });
             });
         };
         getMovies();
@@ -66,8 +75,8 @@ const Home = () => {
 
       <div className="grid movies-grid">
         {movies.Search &&
-          movies.Search.map((movie: any) => (
-            <Movie_card movie={movie} key={movie.imdbID} />
+          movies.Search.map((movie: any, index: number) => (
+            <Movie_card movie={movie} key={movie.imdbID} customUrl={imgUrl[index]} />
           ))}
       </div>
     </div>
