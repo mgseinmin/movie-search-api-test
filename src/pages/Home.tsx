@@ -7,7 +7,7 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [movies, setMovies] = useState<any>({}); // Initialize movies as an empty object
   // const [imgUrl, setImgUrl] = useState([]); // Initialize imgUrl as an empty array
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const loadMovies = () => {
@@ -72,13 +72,16 @@ const Home = () => {
           ? movies.Search.length + " Movies Found"
           : "No Movies Found"}
       </p>
-
-      <div className="grid movies-grid">
+      {error && <div className="error-message">Error: {error}</div>}
+              {loading ? "Loading..." : (
+                <div className="grid movies-grid">
         {movies.Search &&
           movies.Search.map((movie: any, index: number) => (
             <Movie_card movie={movie} key={movie.imdbID} customUrl={imgUrl[index]} />
           ))}
       </div>
+              )}
+      
     </div>
   );
 };
