@@ -13,7 +13,7 @@ const Home = () => {
       try {
         const getMovies = async () => {
           axios
-            .get(`http://www.omdbapi.com/?apikey=9ea626c0&s=saw`)
+            .get(`http://www.omdbapi.com/?apikey=9ea626c0&s=spider&type=series`)
             .then((response) => {
               console.log(response.data, "GetM.tsx");
               // return response.data;
