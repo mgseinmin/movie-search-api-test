@@ -6,8 +6,7 @@ let imgUrl: string[] = [];
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [movies, setMovies] = useState<any>({}); // Initialize movies as an empty object
-  // const [imgUrl, setImgUrl] = useState([]); // Initialize imgUrl as an empty array
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const loadMovies = () => {
@@ -20,11 +19,11 @@ const Home = () => {
               // return response.data;
               setMovies(response.data);
               response.data.Search.map((movie: any, index: number) => {
-                const url = String(movie.Poster) ;
+                const url = String(movie.Poster);
                 const spiltImgUrl = url.split("-").slice(-1).toString();
                 const final = `https://www.${spiltImgUrl}`;
                 imgUrl[index] = final;
-                console.log( "GetM.tsx", final);
+                console.log("GetM.tsx", final);
                 // console.log(imgUrl, "GetM.tsx")
               });
             });
@@ -41,9 +40,46 @@ const Home = () => {
 
     loadMovies();
   }, []);
-  const handleSearch = (e: ChangeEvent) => {
+  function getMoviesBySearch(query: string) {
+    try {
+      const getMovies = () => {
+        axios
+          .get(`http://www.omdbapi.com/?apikey=9ea626c0&s=${query}`)
+          .then((response) => {
+            console.log(response.data, "GetM.tsx");
+            setMovies(response.data);
+            response.data.Search.map((movie: any, index: number) => {
+              const url = String(movie.Poster);
+              const spiltImgUrl = url.split("-").slice(-1).toString();
+              const final = `https://www.${spiltImgUrl}`;
+              imgUrl[index] = final;
+              console.log("GetM.tsx", final);
+              // return response.data;
+            });
+          });
+      };
+      getMovies();
+    } catch (err: any) {
+      setError(err);
+      console.error("Error loading movies:", error);
+    } finally {
+      console.log("Finished loading movies" + loading.toString());
+      setLoading(false);
+    }
+  }
+  const handleSearch = async (e: ChangeEvent) => {
     e.preventDefault();
-    // const movies = getMoviesByTitle(searchQuery);
+    if (!searchQuery.trim()) return;
+    if (loading) return;
+    setLoading(true);
+    try {
+      getMoviesBySearch(searchQuery);
+    } catch (error) {
+      console.log("Error fetching movies:", error);
+      setError("Failed to fetch movies.");
+    } finally {
+      setLoading(false);
+    }
     console.log("Searching for:" + movies);
     setSearchQuery("");
     // Implement search functionality here
@@ -73,15 +109,20 @@ const Home = () => {
           : "No Movies Found"}
       </p>
       {error && <div className="error-message">Error: {error}</div>}
-              {loading ? "Loading..." : (
-                <div className="grid movies-grid">
-        {movies.Search &&
-          movies.Search.map((movie: any, index: number) => (
-            <Movie_card movie={movie} key={movie.imdbID} customUrl={imgUrl[index]} />
-          ))}
-      </div>
-              )}
-      
+      {loading ? (
+        "Loading..."
+      ) : (
+        <div className="grid movies-grid">
+          {movies.Search &&
+            movies.Search.map((movie: any, index: number) => (
+              <Movie_card
+                movie={movie}
+                key={movie.imdbID}
+                customUrl={imgUrl[index]}
+              />
+            ))}
+        </div>
+      )}
     </div>
   );
 };
